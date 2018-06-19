@@ -1,3 +1,4 @@
 beautifulsoup4
 Pillow
 html5lib
+gevent
