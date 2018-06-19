@@ -1,3 +1,6 @@
+import gevent.monkey
+gevent.monkey.patch_all()
+
 from http.client import HTTPSConnection, HTTPConnection
 import datetime
 import os
@@ -7,6 +10,7 @@ import bs4
 import copy
 
 import emailhandler
+import downloader
 
 SUBSCRIBED_COMICS = [
     173,
@@ -69,16 +73,13 @@ def send_comic(title, issue):
         download_data("www.kuaikanmanhua.com", uri), "html5lib")
     imglist = response.find("div", class_="comic-imgs").find_all("img")
     imgs = []
+    down = downloader.DownloadDispatcher(5, "p1.kkmh.com", RETRY_COUNT)
     for i in range(len(imglist)):
         src = imglist[i]['data-kksrc']
-        with open("img/{}.jpg".format(i), mode="wb") as f:
-            print(src)
-            f.write(
-                download_data(
-                    urllib.parse.urlparse(src).netloc,
-                    src,
-                    https=urllib.parse.urlparse(src).scheme == "https"))
+        print(src)
+        down.dispatch(src, "img/{}.jpg".format(i))
         imgs.append("img/{}.jpg".format(i))
+    down.join()
     concat_image(imgs)
     email = emailhandler.EmailToSend(
         TITLE_FORMAT_STRING.format(title=title, issue=issue[0]), MAIL_SENDER,
