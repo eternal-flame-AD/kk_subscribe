@@ -28,9 +28,9 @@ def download_data(host, uri, https=True):
     while count>0:
         try:
             if https:
-                conn = HTTPSConnection(host, timeout=5)
+                conn = HTTPSConnection(host, timeout=10)
             else:
-                conn = HTTPConnection(host, timeout=5)
+                conn = HTTPConnection(host, timeout=10)
             conn.request("GET", uri, headers={"User-Agent":"XMLHttpRequest"})
             res = conn.getresponse().read()
             assert len(res>5000)
